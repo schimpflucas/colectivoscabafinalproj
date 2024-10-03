@@ -5,7 +5,7 @@ import plotly.express as px
 import pandas as pd
 
 def mostrar_pagina1():
-
+    backend.descarga()
     st.title("Consultar Colectivos AMBA")
     st.write("Indica el número de colectivo o el número más la letra del ramal")
 
