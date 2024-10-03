@@ -12,6 +12,12 @@ def mostrar_pagina2():
 
     st.write(f"Horario: {time}")
 
+    indicadores = backend.indicadores()
+    st.write(f"Total Colectivos: {indicadores[0]}")
+    st.write(f"Empresas Distintas: {indicadores[1]}")
+    st.write(f"Destinos Distintos: {indicadores[2]}")
+    st.write(f"Lineas Distintas: {indicadores[3]}")
+    
     # Carga de los dataframes
     df1 = backend.funcion_df_agency()
 
