@@ -54,6 +54,13 @@ def timestamp():
     # Devolver solo el valor escalar de la Serie (primer valor)
     return df['time'].head(1).iloc[0]  # .iloc[0] devuelve solo el primer valor
 
+def indicadores():
+    total_colectivos = df['agency_name'].count()
+    empresas_dist = df['agency_name'].nunique()
+    destinos_dist = df['trip_headsign'].nunique()
+    lineas_dist = df['route_short_name'].nunique()
+    indicadores = [total_colectivos,empresas_dist, destinos_dist, lineas_dist]
+    return(indicadores)
 
 def consulta(input_usuario):
 
