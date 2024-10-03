@@ -4,7 +4,7 @@ import plotly.express as px
 import pandas as pd
 
 def mostrar_pagina2():
-    backend.descarga()
+    
     st.title("Estadisticas Colectivos AMBA")
     st.write("Top 10 Empresas, Destinos y Lineas con mas colectivos")
 
