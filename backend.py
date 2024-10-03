@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 # Acceder a los secretos
 client_id = st.secrets["client_id"]
