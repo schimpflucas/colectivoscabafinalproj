@@ -5,45 +5,50 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Acceder a los secretos
-client_id = st.secrets["client_id"]
-client_secret = st.secrets["client_secret"]
+def descarga():
 
-# Construir la URL usando los secretos
-url = f"https://apitransporte.buenosaires.gob.ar/colectivos/vehiclePositionsSimple?client_id={client_id}&client_secret={client_secret}"
+    # Acceder a los secretos
+    client_id = st.secrets["client_id"]
+    client_secret = st.secrets["client_secret"]
+    
+    # Construir la URL usando los secretos
+    url = f"https://apitransporte.buenosaires.gob.ar/colectivos/vehiclePositionsSimple?client_id={client_id}&client_secret={client_secret}"
+    
+    # Realizar la solicitud GET
+    response = requests.get(url)
+    data_json = response.json()
+    
+    #creación dataframe
+    
+    df = pd.DataFrame(data_json)
+    
+    #eliminación duplicados
+    
+    df = df.drop_duplicates(subset='id')
+    
+    #eliminación nulos
+    
+    df = df.dropna()
+    
+    # Reemplazar 'Ã‘' por 'N' en toda la columna 'agency_name'
+    df['agency_name'] = df['agency_name'].str.replace('Ã‘', 'N')
+    
+    #conversion speed de m/s a km/h
+    
+    df['speed'] = (df['speed']*(3.6))
+    
+    #Conversion timestamp a datetime
+    
+    df['time'] = pd.to_datetime(df['timestamp'], unit='s')
+    # Restar 3 horas a cada valor en la columna 'time'
+    df['time'] = df['time'] - pd.Timedelta(hours=3)
+    
+    #generacion primary key:
+    
+    df['id_timestamp'] = df['id'].astype(str) + '-' + df['timestamp'].astype(str)
+    return(df)
 
-# Realizar la solicitud GET
-response = requests.get(url)
-data_json = response.json()
-
-#creación dataframe
-
-df = pd.DataFrame(data_json)
-
-#eliminación duplicados
-
-df = df.drop_duplicates(subset='id')
-
-#eliminación nulos
-
-df = df.dropna()
-
-# Reemplazar 'Ã‘' por 'N' en toda la columna 'agency_name'
-df['agency_name'] = df['agency_name'].str.replace('Ã‘', 'N')
-
-#conversion speed de m/s a km/h
-
-df['speed'] = (df['speed']*(3.6))
-
-#Conversion timestamp a datetime
-
-df['time'] = pd.to_datetime(df['timestamp'], unit='s')
-# Restar 3 horas a cada valor en la columna 'time'
-df['time'] = df['time'] - pd.Timedelta(hours=3)
-
-#generacion primary key:
-
-df['id_timestamp'] = df['id'].astype(str) + '-' + df['timestamp'].astype(str)
+df = descarga()
 
 def timestamp():
     # Devolver solo el valor escalar de la Serie (primer valor)
