@@ -25,7 +25,7 @@ def mostrar_pagina2():
 
     # Colocar la segunda tabla
     st.subheader('Destinos')
-    st.dataframe(df1)
+    st.dataframe(df2)
 
     # Colocar la tercera tabla en la parte inferior
     st.subheader('Lineas')
