@@ -5,6 +5,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+@st.cache_data(ttl=300)
+
 def descarga():
 
     # Acceder a los secretos
