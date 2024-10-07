@@ -6,55 +6,58 @@ import plotly.express as px
 import streamlit as st
 
 @st.cache_data(ttl=300)
-
-# Acceder a los secretos
-client_id = st.secrets["client_id"]
-client_secret = st.secrets["client_secret"]
+def obtener_datos():
+    # Acceder a los secretos
+    client_id = st.secrets["client_id"]
+    client_secret = st.secrets["client_secret"]
+        
+    # Construir la URL usando los secretos
+    url = f"https://apitransporte.buenosaires.gob.ar/colectivos/vehiclePositionsSimple?client_id={client_id}&client_secret={client_secret}"
+        
+    # Realizar la solicitud GET
+    response = requests.get(url)
+    data_json = response.json()
     
-# Construir la URL usando los secretos
-url = f"https://apitransporte.buenosaires.gob.ar/colectivos/vehiclePositionsSimple?client_id={client_id}&client_secret={client_secret}"
+    #creación dataframe
     
-# Realizar la solicitud GET
-response = requests.get(url)
-data_json = response.json()
-
-#creación dataframe
-
-df = pd.DataFrame(data_json)
-
-#eliminación duplicados
+    df = pd.DataFrame(data_json)
     
-df = df.drop_duplicates(subset='id')
+    #eliminación duplicados
+        
+    df = df.drop_duplicates(subset='id')
+    
+    #eliminación nulos
+    
+    df = df.dropna()
+    
+    # Reemplazar 'Ã‘' por 'N' en toda la columna 'agency_name'
+    df['agency_name'] = df['agency_name'].str.replace('Ã‘', 'N')
+    
+    #conversion speed de m/s a km/h
+    
+    df['speed'] = (df['speed']*(3.6))
+    
+    #Conversion timestamp a datetime
+    
+    df['time'] = pd.to_datetime(df['timestamp'], unit='s')
+    # Restar 3 horas a cada valor en la columna 'time'
+    df['time'] = df['time'] - pd.Timedelta(hours=3)
+    
+    #generacion primary key:
+    
+    df['id_timestamp'] = df['id'].astype(str) + '-' + df['timestamp'].astype(str)
 
-#eliminación nulos
-
-df = df.dropna()
-
-# Reemplazar 'Ã‘' por 'N' en toda la columna 'agency_name'
-df['agency_name'] = df['agency_name'].str.replace('Ã‘', 'N')
-
-#conversion speed de m/s a km/h
-
-df['speed'] = (df['speed']*(3.6))
-
-#Conversion timestamp a datetime
-
-df['time'] = pd.to_datetime(df['timestamp'], unit='s')
-# Restar 3 horas a cada valor en la columna 'time'
-df['time'] = df['time'] - pd.Timedelta(hours=3)
-
-#generacion primary key:
-
-df['id_timestamp'] = df['id'].astype(str) + '-' + df['timestamp'].astype(str)
-
+    return df
 
 
 
 def timestamp():
+    df = obtener_datos()
     # Devolver solo el valor escalar de la Serie (primer valor)
     return df['time'].head(1).iloc[0]  # .iloc[0] devuelve solo el primer valor
 
 def indicadores():
+    df = obtener_datos()
     total_colectivos = df['agency_name'].count()
     empresas_dist = df['agency_name'].nunique()
     destinos_dist = df['trip_headsign'].nunique()
@@ -63,7 +66,7 @@ def indicadores():
     return(indicadores)
 
 def consulta(input_usuario):
-
+    df = obtener_datos()
     # Comprobar si la entrada del usuario tiene letras
     if any(char.isalpha() for char in input_usuario):
         # Si hay letras, buscamos esa combinación exacta
@@ -87,6 +90,7 @@ def consulta(input_usuario):
     return resultado
 
 def funcion_df_agency():
+    df = obtener_datos()
     # Obtener el conteo de los valores en la columna 'agency_name' y ordenarlos
     df_agency = df['agency_name'].value_counts().sort_values(ascending=False)
 
@@ -102,6 +106,7 @@ def funcion_df_agency():
     return(df_agency_10)
 
 def funcion_df_destino():
+    df = obtener_datos()
     # Obtener el conteo de los valores en la columna 'agency_name' y ordenarlos
     df_destino = df['trip_headsign'].value_counts().sort_values(ascending=False)
 
@@ -117,6 +122,7 @@ def funcion_df_destino():
     return(df_destino_10)
 
 def funcion_df_linea():
+    df = obtener_datos()
     # Obtener el conteo de los valores en la columna 'agency_name' y ordenarlos
     df_linea = df['route_short_name'].value_counts().sort_values(ascending=False)
 
@@ -132,6 +138,7 @@ def funcion_df_linea():
     return(df_linea_10)
 
 def funcion_df_treemap():
+    df = obtener_datos()
     # Obtener el conteo de los valores en la columna 'agency_name' y ordenarlos
     df_agency = df['agency_name'].value_counts().sort_values(ascending=False)
 
