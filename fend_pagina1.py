@@ -26,34 +26,43 @@ def mostrar_pagina1():
             st.session_state.user = ''
             
             # Generar y mostrar el mapa
-            if isinstance(respuesta, pd.DataFrame) and not respuesta.empty:
-                # Renombrar columnas temporalmente para los tooltips
-                respuesta = respuesta.rename(columns={
-                    'route_short_name': 'Ramal',
-                    'trip_headsign': 'Destino',
-                    'time': 'Ultima actualización'
-                })
+            # Generar y mostrar el mapa
+            if isinstance(respuesta, pd.DataFrame):
+                if not respuesta.empty:
+                    # Renombrar columnas temporalmente para los tooltips
+                    respuesta = respuesta.rename(columns={
+                        'route_short_name': 'Ramal',
+                        'trip_headsign': 'Destino',
+                        'time': 'Ultima actualización'
+                    })
+            
+                    # Crear el scattermapbox
+                    fig = px.scatter_mapbox(respuesta,
+                                            lat='latitude',
+                                            lon='longitude',
+                                            hover_name='Ramal',  # Usar el nuevo nombre
+                                            hover_data={
+                                                'Destino': True,  # Mostrar 'Destino'
+                                                'Ultima actualización': True,  # Mostrar 'Ultima actualización'
+                                                'latitude': False,  # Ocultar coordenadas en el tooltip
+                                                'longitude': False
+                                            },
+                                            zoom=10,  # Nivel de zoom inicial
+                                            height=600)
+            
+                    # Personalizar el mapa
+                    fig.update_layout(mapbox_style="open-street-map")
+            
+                    # Aumentar el tamaño de los marcadores
+                    fig.update_traces(marker=dict(size=12))  # Cambia el tamaño según sea necesario
+                    st.plotly_chart(fig)
+                else:
+                    # Mensaje para el caso de que el DataFrame esté vacío
+                    st.warning("Número de colectivo inválido.")
+            else:
+                # Mensaje adicional en caso de que la respuesta no sea un DataFrame
+                st.error("Hubo un problema al procesar la consulta.")
 
-                # Crear el scattermapbox
-                fig = px.scatter_mapbox(respuesta,
-                                        lat='latitude',
-                                        lon='longitude',
-                                        hover_name='Ramal',  # Usar el nuevo nombre
-                                        hover_data={
-                                            'Destino': True,  # Mostrar 'Destino'
-                                            'Ultima actualización': True,  # Mostrar 'Ultima actualización'
-                                            'latitude': False,  # Ocultar coordenadas en el tooltip
-                                            'longitude': False
-                                        },
-                                        zoom=10,  # Nivel de zoom inicial
-                                        height=600)
-
-                # Personalizar el mapa
-                fig.update_layout(mapbox_style="open-street-map")
-
-                # Aumentar el tamaño de los marcadores
-                fig.update_traces(marker=dict(size=12))  # Cambia el tamaño según sea necesario
-                st.plotly_chart(fig)
 
 
     with st.form('my-form'):
