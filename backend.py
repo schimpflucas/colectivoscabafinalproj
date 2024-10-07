@@ -67,25 +67,41 @@ def indicadores():
 
 def consulta(input_usuario):
     df = obtener_datos()
-    # Comprobar si la entrada del usuario tiene letras
-    if any(char.isalpha() for char in input_usuario):
-        # Si hay letras, buscamos esa combinación exacta
-        regex_pattern = f'^{input_usuario}$'  # Empieza y termina con input_usuario
-    else:
-        # Si solo hay números, buscamos esos números seguidos de letras
-        regex_pattern = f'^{input_usuario}(?![0-9])([A-Za-z]*)$'  # Solo seguido de letras
+    
+    try:
+        # Comprobar si la entrada del usuario tiene letras
+        if any(char.isalpha() for char in input_usuario):
+            # Si hay letras, buscamos esa combinación exacta
+            regex_pattern = f'^{input_usuario}$'  # Empieza y termina con input_usuario
+        else:
+            # Si solo hay números, buscamos esos números seguidos de letras
+            regex_pattern = f'^{input_usuario}(?![0-9])([A-Za-z]*)$'  # Solo seguido de letras
 
-    # Filtrar el DataFrame
-    df_filtered = df[df['route_short_name'].str.contains(regex_pattern, regex=True)]
+        # Filtrar el DataFrame
 
-    # Suponiendo que tu DataFrame se llama 'df_filtered'
-    df_filtered['latitude'] = df_filtered['latitude'].astype(float)
-    df_filtered['longitude'] = df_filtered['longitude'].astype(float)
+        df_filtered = df[df['route_short_name'].str.contains(regex_pattern, regex=True)]
 
+        # Convertir columnas a float
+        df_filtered['latitude'] = df_filtered['latitude'].astype(float)
+        df_filtered['longitude'] = df_filtered['longitude'].astype(float)
 
-    # Mostrar el gráfico
-    resultado = df_filtered
+        # Retornar el DataFrame filtrado
+        resultado = df_filtered
 
+    except re.error as e:
+        # Si hay un error en la expresión regular, imprimir el error y retornar None o un DataFrame vacío
+        print(f"Error en la expresión regular: {e}")
+        return None  # O puedes devolver pd.DataFrame() para un DataFrame vacío
+
+    except KeyError as e:
+        # Si no existe alguna de las columnas esperadas, manejar el error
+        print(f"Columna faltante en el DataFrame: {e}")
+        return None  # O pd.DataFrame() si prefieres
+
+    except ValueError as e:
+        # Si ocurre algún problema con la conversión de tipos
+        print(f"Error en la conversión de datos: {e}")
+        return None
 
     return resultado
 
