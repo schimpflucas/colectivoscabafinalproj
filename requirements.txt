@@ -2,3 +2,4 @@ plotly
 pandas
 requests
 streamlit_chat
+re
