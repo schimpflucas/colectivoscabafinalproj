@@ -5,6 +5,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+@st.cache_data(ttl=300)
+
 # Acceder a los secretos
 client_id = st.secrets["client_id"]
 client_secret = st.secrets["client_secret"]
