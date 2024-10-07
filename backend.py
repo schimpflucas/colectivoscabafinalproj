@@ -4,6 +4,7 @@ import datetime
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import re
 
 @st.cache_data(ttl=300)
 def obtener_datos():
